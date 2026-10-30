@@ -107,9 +107,9 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
       </details>
       <details class="panel" open>
         <summary><h2>Capital gains tax</h2></summary>
-        <div class="field"><label for="mtrSale">Tax rate in the year you sell (%)</label><input id="mtrSale" type="number" step="1" value="17"><small>Default 17% is 15% plus 2% Medicare, for selling after retiring. The 30% minimum below still applies.</small></div>
+        <div class="field"><label for="mtrSale">Tax rate in the year you sell (%)</label><input id="mtrSale" type="number" step="1" value="17"><small>Default 17% is 15% plus 2% Medicare, for selling after retiring. The 30% minimum below is still applied.</small></div>
         <div class="field"><label for="cpi">Inflation for indexation (%)</label><input id="cpi" type="number" step="0.1" value="2.5"><small>Raises your cost base each year, so only growth above it is taxed.</small></div>
-        <div class="field"><label for="floor">Minimum CGT rate (%)</label><input id="floor" type="number" step="1" value="30"><small>The new rules tax a gain at no less than this.</small></div>
+        <div class="field"><label for="floor">Minimum CGT rate (%)</label><input id="floor" type="number" step="1" value="30"><small>The announced changes from 1 July 2027 tax a gain at no less than this.</small></div>
       </details>
       <details class="panel" open>
         <summary><h2>Fund and dividends</h2></summary>
@@ -172,11 +172,11 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
       <details class="note" open>
         <summary><h2>Not included or limitations</h2></summary>
         <ul class="limits">
-          <li><b>ASX-listed, Australian-domiciled ETFs only.</b> The tax treatment (FITO or franking, the new CGT rules, tax paid through the fund's annual statement) is for ETFs listed on the ASX and domiciled in Australia. It does not work for US-listed or other overseas-domiciled funds, which are taxed differently (for example, W-8BEN forms and US tax paid directly by you).</li>
+          <li><b>ASX-listed, Australian-domiciled ETFs only.</b> The tax treatment (FITO or franking, the announced CGT changes from 1 July 2027, tax paid through the fund's annual statement) is for ETFs listed on the ASX and domiciled in Australia. It does not work for US-listed or other overseas-domiciled funds, which are taxed differently (for example, W-8BEN forms and US tax paid directly by you).</li>
           <li><b>Flat growth rate.</b> The page assumes the ETF grows by the same percentage every year. Real returns are not smooth and not guaranteed: they go up and down, and some years are negative. Two investments with the same average growth can end with different amounts, depending on when the good and bad years fall and when you sell.</li>
           <li><b>One lump sum, two brokerage fees.</b> You buy once and sell once, not dollar cost averaging. The buy fee is added to the money taken from redraw/offset (amount plus fee), and the sell fee is deducted from the sale proceeds. Regular monthly or yearly buying would mean several purchase dates, each with its own cost base and fee, which this page does not track.</li>
           <li><b>DRP is assumed OFF.</b> Dividends are not reinvested in the ETF. Each year's dividend, after tax, goes against the loan and saves interest until the sale. Reinvested dividends would each have their own cost base and purchase date, which this page does not track.</li>
-          <li><b>Old CGT discount.</b> The part of a gain made before 1 July 2027 keeps the old 50% discount, which would lower the break-even a little for holds that straddle that date.</li>
+          <li><b>Current CGT discount.</b> Under the announced capital gains tax changes from 1 July 2027, the part of a gain made before that date would keep the current 50% discount, which would lower the break-even a little for holds that straddle that date.</li>
           <li><b>Loan rate.</b> It is assumed to stay constant for the whole hold. Loan interest is not tax deductible, because it is your home.</li>
           <li><b>Franking.</b> A fund is treated as either foreign (FITO) or Australian (franked), not both. The 45 day holding rule for franking credits is not modelled, and the credit is assumed fully usable and refundable. Part of a real distribution can be interest or other income, which this page does not separate.</li>
           <li><b>General information only, not advice.</b></li>

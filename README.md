@@ -48,7 +48,7 @@ It is for an Australian resident and for ASX-listed, Australian-domiciled ETFs o
 - **Dividends:** each year the ETF pays a dividend based on its value at the start of that year. The dividend is taxed at your dividend rate, and what is left is assumed to go against the loan, saving interest until the sale. Dividends are not reinvested (DRP off).
 - **Foreign funds (IVV, NDQ):** the dividend is grossed up for the foreign income tax offset (FITO) before tax is worked out.
 - **Franked funds (A200, VAS):** the dividend is grossed up for franking credits. If the credits are bigger than the tax, the difference is treated as a refund.
-- **Sale:** the cost base goes up each year by inflation (indexation), and the gain above it is taxed at your tax rate in the sale year or the minimum CGT rate, whichever is higher. This follows the new capital gains tax rules from 1 July 2027. The sell fee comes off the proceeds.
+- **Sale:** the cost base goes up each year by inflation (indexation), and the gain above it is taxed at your tax rate in the sale year or the minimum CGT rate, whichever is higher. This follows the announced capital gains tax changes from 1 July 2027. The sell fee comes off the proceeds.
 - **Break-even:** the page tries growth rates until the ETF profit after tax and fees equals the redraw/offset saving.
 
 A fund is treated as either foreign or franked, not both.
@@ -76,10 +76,12 @@ In rough order of importance:
 2. **Flat growth rate.** The model grows the ETF by the same percentage every year. Real returns go up and down, and the order of good and bad years matters.
 3. **One lump sum.** You buy once and sell once. Dollar cost averaging is not modelled.
 4. **DRP is assumed off.** Reinvested dividends would each need their own cost base and 12 month indexation test.
-5. **Old CGT discount not modelled.** The 50% discount that applies to gains made before 1 July 2027 is ignored, so holds that straddle that date are a little off.
+5. **Current CGT discount not modelled.** Under the announced capital gains tax changes from 1 July 2027, gains made before that date would keep the current 50% discount. This is ignored, so holds that straddle that date are a little off.
 6. **Constant loan rate.** The loan rate is assumed to stay the same for the whole hold. Loan interest is not tax deductible because it is a home loan.
 7. **Franking.** The 45 day holding rule is not modelled, the credit is assumed to be fully usable and refundable, and any interest or other income in a distribution is not separated out.
 8. **General information only.** See the notice at the top.
+
+The announced capital gains tax changes may change before they take effect, so check the current law.
 
 ## License
 
