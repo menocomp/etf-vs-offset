@@ -1,0 +1,304 @@
+<!-- ETF vs redraw/offset break-even calculator -->
+<title>ETF vs Redraw/Offset</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: inputs on the left, the answer and its working on the right; one column on a phone. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --fg:#16202a; --muted:#5a6772; --line:#d9dfe5;
+  --accent:#0b6e6e; --accent-soft:#dcefee; --warn:#9a5b00; --warn-soft:#fbefd9;
+  --on-accent:#ffffff;
+  --font:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f161c; --panel:#18222a; --fg:#e7edf2; --muted:#9aa8b3; --line:#2b3944;
+  --accent:#4fc3bd; --accent-soft:#17353a; --warn:#f0b866; --warn-soft:#3a2d14; --on-accent:#0f161c;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --on-accent:#0f161c;
+  --bg:#0f161c; --panel:#18222a; --fg:#e7edf2; --muted:#9aa8b3; --line:#2b3944;
+  --accent:#4fc3bd; --accent-soft:#17353a; --warn:#f0b866; --warn-soft:#3a2d14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.5;
+  padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font-size:26px;line-height:1.2;margin:0;font-weight:600;text-wrap:balance}
+h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:600}
+p{margin:0}
+.sub{color:var(--muted);max-width:62ch;margin-top:6px}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+.field{display:grid;grid-template-columns:1fr 112px;gap:4px 12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.field:last-of-type{border-bottom:0}
+.field label{font-weight:500}
+.field small{grid-column:1/-1;color:var(--muted);font-size:12.5px}
+input[type=number]{width:100%;font:inherit;font-family:var(--mono);text-align:right;padding:6px 8px;border:1px solid var(--line);
+  border-radius:6px;background:var(--bg);color:var(--fg)}
+input[type=number]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hero .big{margin-top:2px}
+.big{font-family:var(--mono);font-size:44px;line-height:1.05;font-weight:500;color:var(--accent)}
+.big span{font-size:18px;color:var(--muted);margin-left:6px}
+.pair{display:flex;gap:28px;flex-wrap:wrap;margin-top:8px}
+.pair div{min-width:0}
+.pair b{display:block;font-family:var(--mono);font-size:20px;font-weight:500}
+.pair span{color:var(--muted);font-size:13px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:7px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+td:last-child,th:last-child{text-align:right;font-family:var(--mono);white-space:nowrap;padding-left:14px}
+tr.total td{font-weight:600;border-bottom:0}
+.test{background:var(--accent-soft);border-radius:8px;padding:14px}
+.verdict{font-weight:600}
+.note{background:var(--warn-soft);color:var(--fg);border-radius:8px;padding:12px 14px;font-size:13.5px}
+.note b{color:var(--warn)}
+ol.formulas{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+ol.formulas code{font-family:var(--mono);font-size:13px;background:var(--bg);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.row2{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.lefthead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lefthead h2{margin:0}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.panelhead h2{margin:0}
+button.reset{font:inherit;font-size:13px;font-weight:500;color:var(--accent);background:transparent;border:1px solid var(--accent);border-radius:6px;padding:5px 10px;cursor:pointer}
+button.reset:hover{background:var(--accent-soft)}
+button.reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.note h2{color:var(--warn)}
+ul.limits{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+select{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+[hidden]{display:none!important}
+.subgroup{margin:2px 0 6px 14px;padding:2px 12px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 6px 6px 0}
+.subgroup .field{border-bottom-color:transparent}
+.subgroup input[type=number]{background:var(--panel)}
+.field.wide{grid-template-columns:1fr}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 6px}
+button.chip{font:inherit;font-size:13px;font-weight:500;padding:5px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button.chip:hover{border-color:var(--accent)}
+button.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+span.chip-custom{font-size:13px;font-weight:500;padding:5px 14px;border-radius:999px;border:1px dashed var(--accent);color:var(--accent)}
+.presetnote{color:var(--muted);font-size:12.5px;margin:0 0 8px}
+summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none;border-radius:4px}
+summary::-webkit-details-marker{display:none}
+summary h2{margin:0}
+summary::after{content:"";flex:none;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-right:4px}
+details[open]>summary::after{transform:rotate(225deg)}
+details[open]>summary{margin-bottom:12px}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+</style>
+<div class="wrap">
+  <header>
+    <h1>ETF vs leaving money in redraw/offset</h1>
+    <p class="sub">What yearly price growth would make the ETF end up level with the interest you save by leaving the money in your home loan? Change any number on the left and everything updates.</p>
+  </header>
+  <div class="grid">
+    <div class="stack" aria-label="Inputs">
+      <div class="lefthead"><h2>Your numbers</h2><button type="button" class="reset" id="reset">Reset all</button></div>
+      <details class="panel" open>
+        <summary><h2>Investment</h2></summary>
+        <div class="field"><label for="amount">Amount ($)</label><input id="amount" type="number" step="100" value="6000"><small>One lump sum, bought once. Not dollar cost averaging. This is the amount invested; the buy fee comes on top.</small></div>
+        <div class="field"><label for="years">Years held</label><input id="years" type="number" step="1" min="1" max="40" value="1"><small>Whole years, 1 or more. Indexation needs a 12 month hold.</small></div>
+        <div class="field"><label for="fee">Brokerage per trade ($)</label><input id="fee" type="number" step="0.5" value="3"><small>Charged twice: once on the buy (added on top of the amount) and once on the sell (taken off the proceeds).</small></div>
+      </details>
+      <details class="panel" open>
+        <summary><h2>Home loan</h2></summary>
+        <div class="field"><label for="loanRate">Loan rate (% a year)</label><input id="loanRate" type="number" step="0.01" value="6.24"><small>Interest is worked out monthly, so it compounds monthly.</small></div>
+      </details>
+      <details class="panel" open>
+        <summary><h2>Capital gains tax</h2></summary>
+        <div class="field"><label for="mtrSale">Tax rate in the year you sell (%)</label><input id="mtrSale" type="number" step="1" value="17"><small>Default 17% is 15% plus 2% Medicare, for selling after retiring. The 30% minimum below still applies.</small></div>
+        <div class="field"><label for="cpi">Inflation for indexation (%)</label><input id="cpi" type="number" step="0.1" value="2.5"><small>Raises your cost base each year, so only growth above it is taxed.</small></div>
+        <div class="field"><label for="floor">Minimum CGT rate (%)</label><input id="floor" type="number" step="1" value="30"><small>The new rules tax a gain at no less than this.</small></div>
+      </details>
+      <details class="panel" open>
+        <summary><h2>Fund and dividends</h2></summary>
+        <div class="presets"><div class="chips" role="group" aria-label="Fund presets"><button type="button" class="chip" data-t="IVV">IVV</button><button type="button" class="chip" data-t="NDQ">NDQ</button><button type="button" class="chip" data-t="A200">A200</button><button type="button" class="chip" data-t="VAS">VAS</button><span class="chip-custom" id="chipCustom" hidden>Custom</span></div>
+        <p class="presetnote" id="presetNote"></p></div>
+        <div class="field wide"><label for="dtype">Dividend type</label><select id="dtype"><option value="foreign" selected>Foreign shares (FITO)</option><option value="franked">Australian shares (franked)</option></select><small>Pick one. A fund is treated as either foreign or franked, not both.</small></div>
+        <div class="subgroup" aria-label="Settings for the dividend type">
+        <div class="field" id="row-fito"><label for="fito">FITO (foreign income tax offset) (%)</label><input id="fito" type="number" step="0.5" value="15"><small>Default 15% is the US treaty cap on dividend withholding. Confirm the actual figure on your fund tax statement. Dividends only.</small></div>
+        <div class="field" id="row-frank" hidden><label for="frank">Franked portion (%)</label><input id="frank" type="number" step="1" value="100"><small>How much of the dividend carries franking credits. Your fund's tax statement or website shows it.</small></div>
+        <div class="field" id="row-corp" hidden><label for="corp">Company tax rate (%)</label><input id="corp" type="number" step="1" value="30"><small>30% for most large companies, 25% for smaller base rate companies.</small></div>
+      </div>
+        <div class="field"><label for="yield">ETF dividend yield (%)</label><input id="yield" type="number" step="0.01" value="1.25"><small>Cash you receive. Use the cash yield, not a grossed-up yield that includes franking credits. DRP is assumed OFF: dividends are not reinvested. Pick a fund preset above or type your own.</small></div>
+        <div class="field"><label for="mtr">Tax rate on dividends (%)</label><input id="mtr" type="number" step="1" value="39"><small>Your rate while working. Default 39% is 37% plus 2% Medicare (taxable income $135,001 to $190,000).</small></div>
+      </details>
+    </div>
+    <div class="stack">
+      <details class="panel hero" aria-live="polite" open>
+        <summary><h2>Break-even</h2></summary>
+        <div class="big" id="g">-<span>price growth a year</span></div>
+        <div class="pair">
+          <div><b id="tr">-</b><span>total return a year, with the dividend</span></div>
+          <div><b id="ls">-</b><span>interest saved by leaving it in redraw/offset</span></div>
+        </div>
+      </details>
+      <details class="panel" open>
+        <summary><h2>The working at break-even</h2></summary>
+        <div class="tablewrap"><table>
+          <tr><td>Money taken from redraw/offset (amount plus the buy fee)</td><td id="t_cash"></td></tr>
+          <tr><td>Sale price after the growth</td><td id="t_sale"></td></tr>
+          <tr><td>Sale brokerage</td><td id="t_fee"></td></tr>
+          <tr><td>Cost base after indexation</td><td id="t_base"></td></tr>
+          <tr><td>Taxable gain</td><td id="t_gain"></td></tr>
+          <tr><td>Capital gains tax</td><td id="t_cgt"></td></tr>
+          <tr><td>Profit from the sale, after tax and fees</td><td id="t_cap"></td></tr>
+          <tr><td>Dividends received</td><td id="t_dc"></td></tr>
+          <tr><td>Tax on dividends, after the offset or franking credit (negative = refund)</td><td id="t_dt"></td></tr>
+          <tr><td>Dividends after tax, with loan interest saved by using them</td><td id="t_dn"></td></tr>
+          <tr class="total"><td>ETF profit, which equals the redraw/offset saving</td><td id="t_tot"></td></tr>
+        </table></div>
+      </details>
+      <details class="panel test" open>
+        <summary><h2>Test a growth rate</h2></summary>
+        <div class="field" style="border:0;padding-top:0"><label for="tg">Price growth you expect (% a year)</label><input id="tg" type="number" step="0.1" value="8"></div>
+        <div class="row2"><span class="verdict" id="tv"></span></div>
+      </details>
+      <details class="panel" open>
+        <summary><h2>How it is calculated</h2></summary>
+        <ol class="formulas">
+          <li>Redraw/offset saving: <code>(amount + buy fee) x ((1 + loan rate / 12)^(12 x years) - 1)</code></li>
+          <li class="only-foreign">Each year the dividend is <code>yield x value at the start of the year</code>. It is grossed up: <code>dividend / (1 - <span class="v-fito">15%</span>)</code>.</li>
+          <li class="only-foreign">Dividend tax: <code>grossed-up dividend x dividend tax rate - grossed-up dividend x <span class="v-fito">15%</span></code>. The after-tax dividend goes against the loan and saves interest to the end.</li>
+          <li class="only-franked">Each year the dividend is <code>yield x value at the start of the year</code>. Franking credit: <code>dividend x (company rate / (1 - company rate)) x franked portion</code>. Grossed-up dividend: <code>dividend + franking credit</code>.</li>
+          <li class="only-franked">Dividend tax: <code>grossed-up dividend x dividend tax rate - franking credit</code>. If this is negative, the credit is refunded and you receive the difference. The after-tax dividend goes against the loan and saves interest to the end.</li>
+          <li>Cost base: <code>(amount + buy fee) x (1 + inflation)^years</code></li>
+          <li>Taxable gain: <code>sale price - sell fee - cost base</code>, never below zero.</li>
+          <li>Capital gains tax: <code>gain x the higher of your tax rate in the sale year and the <span class="v-floor">30%</span> minimum</code></li>
+          <li>Break-even: the price growth where dividends after tax plus profit on the sale equal the redraw/offset saving. The page finds it by trial and error, so it works for any years.</li>
+        </ol>
+      </details>
+      <details class="note" open>
+        <summary><h2>Not included or limitations</h2></summary>
+        <ul class="limits">
+          <li><b>ASX-listed, Australian-domiciled ETFs only.</b> The tax treatment (FITO or franking, the new CGT rules, tax paid through the fund's annual statement) is for ETFs listed on the ASX and domiciled in Australia. It does not work for US-listed or other overseas-domiciled funds, which are taxed differently (for example, W-8BEN forms and US tax paid directly by you).</li>
+          <li><b>Flat growth rate.</b> The page assumes the ETF grows by the same percentage every year. Real returns are not smooth and not guaranteed: they go up and down, and some years are negative. Two investments with the same average growth can end with different amounts, depending on when the good and bad years fall and when you sell.</li>
+          <li><b>One lump sum, two brokerage fees.</b> You buy once and sell once, not dollar cost averaging. The buy fee is added to the money taken from redraw/offset (amount plus fee), and the sell fee is deducted from the sale proceeds. Regular monthly or yearly buying would mean several purchase dates, each with its own cost base and fee, which this page does not track.</li>
+          <li><b>DRP is assumed OFF.</b> Dividends are not reinvested in the ETF. Each year's dividend, after tax, goes against the loan and saves interest until the sale. Reinvested dividends would each have their own cost base and purchase date, which this page does not track.</li>
+          <li><b>Old CGT discount.</b> The part of a gain made before 1 July 2027 keeps the old 50% discount, which would lower the break-even a little for holds that straddle that date.</li>
+          <li><b>Loan rate.</b> It is assumed to stay constant for the whole hold. Loan interest is not tax deductible, because it is your home.</li>
+          <li><b>Franking.</b> A fund is treated as either foreign (FITO) or Australian (franked), not both. The 45 day holding rule for franking credits is not modelled, and the credit is assumed fully usable and refundable. Part of a real distribution can be interest or other income, which this page does not separate.</li>
+          <li><b>General information only, not advice.</b></li>
+        </ul>
+      </details>
+      </div>
+  </div>
+</div>
+<script>
+function model(p, g) {
+  var N = p.years, m = p.loanRate / 12;
+  var fv = function (n) { return Math.pow(1 + m, 12 * n); };
+  var cash = p.amount + p.fee;
+  var V = p.amount, divFV = 0, divNet = 0, divTax = 0, divCash = 0;
+  for (var k = 1; k <= N; k++) {
+    var div = V * p.yield;
+    var gross, tax;
+    if (p.franked) {
+      var credit = div * (p.corp / (1 - p.corp)) * p.frank;
+      gross = div + credit;
+      tax = gross * p.mtr - credit;
+    } else {
+      gross = div / (1 - p.fito);
+      tax = Math.max(0, gross * p.mtr - gross * p.fito);
+    }
+    divCash += div; divTax += tax; divNet += div - tax;
+    divFV += (div - tax) * fv(N - k);
+    V = V * (1 + g);
+  }
+  var proceeds = V - p.fee;
+  var base = cash * Math.pow(1 + p.cpi, N);
+  var gain = Math.max(0, proceeds - base);
+  var cgt = gain * Math.max(p.mtrSale, p.floor);
+  var capNet = proceeds - cgt - cash;
+  return { profit: divFV + capNet, divCash: divCash, divTax: divTax, divNet: divNet, divFV: divFV,
+           proceeds: proceeds, base: base, gain: gain, cgt: cgt, capNet: capNet, cash: cash,
+           loanSaving: cash * (fv(N) - 1) };
+}
+function breakEven(p) {
+  var lo = -0.9, hi = 2, target = model(p, 0).loanSaving;
+  for (var i = 0; i < 200; i++) {
+    var mid = (lo + hi) / 2;
+    if (model(p, mid).profit < target) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+(function(){
+var $=function(id){return document.getElementById(id)};
+var f=function(v){return (v<0?'-':'')+'$'+Math.abs(v).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})};
+var pc=function(v){return (v*100).toFixed(2)+'%'};
+function read(){
+  var n=function(id){var v=parseFloat($(id).value);return isNaN(v)?0:v};
+  return {amount:n('amount'),years:Math.max(1,Math.round(n('years'))),fee:n('fee'),loanRate:n('loanRate')/100,
+    yield:n('yield')/100,mtr:n('mtr')/100,mtrSale:n('mtrSale')/100,fito:Math.min(n('fito')/100,0.9),franked:$('dtype').value==='franked',frank:Math.min(n('frank')/100,1),corp:Math.min(Math.max(n('corp')/100,0),0.9),cpi:n('cpi')/100,floor:n('floor')/100};
+}
+var PRESETS={
+  IVV:{type:'foreign',fito:15,yield:1.25,note:'IVV: 12 month trailing yield from the BlackRock fact sheet, 30 Sep 2026. 15% FITO is the US treaty cap, an assumption.'},
+  NDQ:{type:'foreign',fito:15,yield:1.4,note:'NDQ: 12 month distribution yield from the BetaShares fact sheet, 30 Sep 2026. 15% FITO is the US treaty cap, an assumption.'},
+  A200:{type:'franked',frank:71.1,corp:30,yield:3.3,note:'A200: 12 month cash yield and franking level from the BetaShares fact sheet, 30 Sep 2026.'},
+  VAS:{type:'franked',frank:79.59,corp:30,yield:3.2,note:'VAS: yield is the last four quarterly payments divided by the 30 Sep 2026 price (Vanguard website). Franking is the year to June 2026 from the Vanguard fact sheet, worked out differently to A200\'s.'}
+};
+var CUSTOM_NOTE='Custom: your own numbers. Presets come from fund documents as at 30 Sep 2026 and will go out of date.';
+function close(a,b){return Math.abs(a-b)<0.0005}
+function currentPreset(){
+  var type=$('dtype').value, y=parseFloat($('yield').value), fi=parseFloat($('fito').value), fr=parseFloat($('frank').value), co=parseFloat($('corp').value);
+  for(var k in PRESETS){var p=PRESETS[k];
+    if(p.type!==type||!close(p.yield,y)) continue;
+    if(type==='foreign'){ if(close(p.fito,fi)) return k; }
+    else if(close(p.frank,fr)&&close(p.corp,co)) return k;
+  }
+  return null;
+}
+function updateChips(){
+  var cur=currentPreset();
+  Array.prototype.forEach.call(document.querySelectorAll('button.chip'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-t')===cur?'true':'false')});
+  $('chipCustom').hidden=!!cur;
+  $('presetNote').textContent=cur?PRESETS[cur].note:CUSTOM_NOTE;
+}
+function applyPreset(k){
+  var p=PRESETS[k];
+  $('dtype').value=p.type; $('yield').value=p.yield;
+  if(p.type==='foreign'){$('fito').value=p.fito}else{$('frank').value=p.frank;$('corp').value=p.corp}
+  render();
+}
+function showType(){
+  var fr=$('dtype').value==='franked';
+  $('row-fito').hidden=fr; $('row-frank').hidden=!fr; $('row-corp').hidden=!fr;
+  Array.prototype.forEach.call(document.querySelectorAll('.only-foreign'),function(e){e.hidden=fr});
+  Array.prototype.forEach.call(document.querySelectorAll('.only-franked'),function(e){e.hidden=!fr});
+}
+function render(){
+  showType();
+  var p=read(), g=breakEven(p), r=model(p,g);
+  $('g').innerHTML=pc(g)+'<span>price growth a year</span>';
+  $('tr').textContent=pc(g+p.yield);
+  $('ls').textContent=f(r.loanSaving);
+  $('t_cash').textContent=f(r.cash);
+  $('t_sale').textContent=f(r.proceeds+p.fee);
+  $('t_fee').textContent=f(-p.fee);
+  $('t_base').textContent=f(r.base);
+  $('t_gain').textContent=f(r.gain);
+  $('t_cgt').textContent=f(-r.cgt);
+  $('t_cap').textContent=f(r.capNet);
+  $('t_dc').textContent=f(r.divCash);
+  $('t_dt').textContent=f(-r.divTax);
+  $('t_dn').textContent=f(r.divFV);
+  $('t_tot').textContent=f(r.profit);
+  var setAll=function(c,t){Array.prototype.forEach.call(document.querySelectorAll('.'+c),function(e){e.textContent=t})};
+  setAll('v-fito',(p.fito*100).toString().replace(/(\.\d\d)\d+/,'$1')+'%');
+  setAll('v-floor',(p.floor*100).toString().replace(/(\.\d\d)\d+/,'$1')+'%');
+  var tg=parseFloat($('tg').value)/100; if(isNaN(tg)) tg=0;
+  var t=model(p,tg), d=t.profit-r.loanSaving;
+  $('tv').textContent='At '+pc(tg)+' growth the ETF earns '+f(t.profit)+' after tax and fees, against '+f(r.loanSaving)+' saved in redraw/offset. The ETF is '+(d>=0?'ahead by ':'behind by ')+f(Math.abs(d))+'.';
+  updateChips();
+}
+Array.prototype.forEach.call(document.querySelectorAll('input,select'),function(el){el.addEventListener('input',render)});
+Array.prototype.forEach.call(document.querySelectorAll('button.chip'),function(b){b.addEventListener('click',function(){applyPreset(b.getAttribute('data-t'))})});
+$('reset').addEventListener('click',function(){
+  Array.prototype.forEach.call(document.querySelectorAll('input'),function(el){el.value=el.defaultValue});
+  $('dtype').value='foreign';
+  render();
+});
+render();
+})();
+</script>
