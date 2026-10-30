@@ -1,8 +1,21 @@
+<!doctype html>
 <!-- ETF vs redraw/offset break-even calculator -->
-<title>ETF vs Redraw/Offset</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ETF vs Redraw/Offset</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <meta name="description" content="Break-even calculator: what yearly price growth does an Australian ETF need to match the interest saved by leaving money in a home loan redraw/offset?">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ETF vs leaving money in redraw/offset">
+  <meta property="og:description" content="What yearly price growth does an Australian ETF need to match the interest saved in your home loan redraw/offset? Free calculator with tax, brokerage and the announced 2027 CGT changes.">
+  <meta property="og:url" content="https://menocomp.github.io/etf-vs-offset/">
+  <meta property="og:image" content="https://menocomp.github.io/etf-vs-offset/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
 /* Layout: inputs on the left, the answer and its working on the right; one column on a phone. */
 :root{
   --bg:#f3f5f7; --panel:#ffffff; --fg:#16202a; --muted:#5a6772; --line:#d9dfe5;
@@ -86,7 +99,9 @@ summary::after{content:"";flex:none;width:7px;height:7px;border-right:2px solid 
 details[open]>summary::after{transform:rotate(225deg)}
 details[open]>summary{margin-bottom:12px}
 summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
-</style>
+  </style>
+</head>
+<body>
 <div class="wrap">
   <header>
     <h1>ETF vs leaving money in redraw/offset</h1>
@@ -302,3 +317,5 @@ $('reset').addEventListener('click',function(){
 render();
 })();
 </script>
+</body>
+</html>
