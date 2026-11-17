@@ -32,10 +32,10 @@ It is for an Australian resident and for ASX-listed, Australian-domiciled ETFs o
 
 | Setting | Default |
 |---|---|
-| Amount | $6,000 |
-| Years held | 1 |
+| Amount | $10,000 |
+| Years held | 10 |
 | Brokerage per trade | $3 |
-| Loan rate | 6.24% a year |
+| Loan rate | 6.49% a year |
 | Tax rate on dividends | 39% (37% plus 2% Medicare) |
 | Tax rate in the year you sell | 17% (15% plus 2% Medicare) |
 | Inflation for indexation | 2.5% |
@@ -44,7 +44,7 @@ It is for an Australian resident and for ASX-listed, Australian-domiciled ETFs o
 
 ## How the numbers are worked out
 
-- **Redraw/offset saving:** the amount plus the buy fee, earning the loan rate, compounded monthly for the years held.
+- **Redraw/offset saving:** the amount taken from redraw/offset, earning the loan rate, compounded monthly for the years held.
 - **Dividends:** each year the ETF pays a dividend based on its value at the start of that year. The dividend is taxed at your dividend rate, and what is left is assumed to go against the loan, saving interest until the sale. Dividends are not reinvested (DRP off).
 - **Foreign funds (IVV, NDQ):** the dividend is grossed up for the foreign income tax offset (FITO) before tax is worked out.
 - **Franked funds (A200, VAS):** the dividend is grossed up for franking credits. If the credits are bigger than the tax, the difference is treated as a refund.
@@ -77,7 +77,7 @@ In rough order of importance:
 3. **One lump sum.** You buy once and sell once. Dollar cost averaging is not modelled.
 4. **DRP is assumed off.** Reinvested dividends would each need their own cost base and 12 month indexation test.
 5. **Current CGT discount not modelled.** Under the announced capital gains tax changes from 1 July 2027, gains made before that date would keep the current 50% discount. This is ignored, so holds that straddle that date are a little off.
-6. **Constant loan rate.** The loan rate is assumed to stay the same for the whole hold. Loan interest is not tax deductible because it is a home loan.
+6. **Constant loan rate and no interest deduction.** The loan rate is assumed to stay the same for the whole hold. The page treats the loan interest as not tax deductible and treats redraw and offset the same. If you redraw money to invest, the interest on that part may be deductible only in some cases (for example, if the loan is split), which this page does not model. Check with a tax agent.
 7. **Franking.** The 45 day holding rule is not modelled, the credit is assumed to be fully usable and refundable, and any interest or other income in a distribution is not separated out.
 8. **General information only.** See the notice at the top.
 

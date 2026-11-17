@@ -80,6 +80,7 @@ button.reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 ul.limits{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
 select{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
 select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input.slider{grid-column:1/-1;width:100%;margin:2px 0;accent-color:var(--accent)}
 [hidden]{display:none!important}
 .subgroup{margin:2px 0 6px 14px;padding:2px 12px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 6px 6px 0}
 .subgroup .field{border-bottom-color:transparent}
@@ -112,17 +113,17 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
       <div class="lefthead"><h2>Your numbers</h2><button type="button" class="reset" id="reset">Reset all</button></div>
       <details class="panel" open>
         <summary><h2>Investment</h2></summary>
-        <div class="field"><label for="amount">Amount ($)</label><input id="amount" type="number" step="100" value="6000"><small>One lump sum, bought once. Not dollar cost averaging. This is the amount invested; the buy fee comes on top.</small></div>
-        <div class="field"><label for="years">Years held</label><input id="years" type="number" step="1" min="1" max="40" value="1"><small>Whole years, 1 or more. Indexation needs a 12 month hold.</small></div>
-        <div class="field"><label for="fee">Brokerage per trade ($)</label><input id="fee" type="number" step="0.5" value="3"><small>Charged twice: once on the buy (added on top of the amount) and once on the sell (taken off the proceeds).</small></div>
+        <div class="field"><label for="amount">Amount ($)</label><input id="amount" type="number" step="100" value="10000"><input id="amountRange" class="slider" type="range" min="1000" max="100000" step="500" value="10000" aria-label="Amount slider"><small>One lump sum, bought once. Not dollar cost averaging. This is the total taken from redraw/offset; the buy fee comes out of it, so slightly less is invested.</small></div>
+        <div class="field"><label for="years">Years held</label><input id="years" type="number" step="1" min="1" value="10"><input id="yearsRange" class="slider" type="range" min="1" max="30" step="1" value="10" aria-label="Years held slider"><small>Whole years, 1 or more. Indexation needs a 12 month hold.</small></div>
+        <div class="field"><label for="fee">Brokerage per trade ($)</label><input id="fee" type="number" step="0.5" value="3"><small>Charged twice: once on the buy (taken out of the amount) and once on the sell (taken off the proceeds).</small></div>
       </details>
       <details class="panel" open>
         <summary><h2>Home loan</h2></summary>
-        <div class="field"><label for="loanRate">Loan rate (% a year)</label><input id="loanRate" type="number" step="0.01" value="6.24"><small>Interest is worked out monthly, so it compounds monthly.</small></div>
+        <div class="field"><label for="loanRate">Loan rate (% a year)</label><input id="loanRate" type="number" step="0.01" value="6.49"><small>Most home loans work out interest daily and charge it monthly. This page uses monthly compounding, which is very close. Money left in redraw/offset saves about <span id="effRate"></span> over a full year, because the interest you save compounds.</small></div>
       </details>
       <details class="panel" open>
         <summary><h2>Capital gains tax</h2></summary>
-        <div class="field"><label for="mtrSale">Tax rate in the year you sell (%)</label><input id="mtrSale" type="number" step="1" value="17"><small>Default 17% is 15% plus 2% Medicare, for selling after retiring. The 30% minimum below is still applied.</small></div>
+        <div class="field"><label for="mtrSale">Tax rate in the year you sell (%)</label><input id="mtrSale" type="number" step="1" value="17"><small>Default 17% is 15% plus 2% Medicare. Use your own rate for the year you sell, which depends on your other income that year. The 30% minimum below is still applied.</small></div>
         <div class="field"><label for="cpi">Inflation for indexation (%)</label><input id="cpi" type="number" step="0.1" value="2.5"><small>Raises your cost base each year, so only growth above it is taxed.</small></div>
         <div class="field"><label for="floor">Minimum CGT rate (%)</label><input id="floor" type="number" step="1" value="30"><small>The announced changes from 1 July 2027 tax a gain at no less than this.</small></div>
       </details>
@@ -136,8 +137,8 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
         <div class="field" id="row-frank" hidden><label for="frank">Franked portion (%)</label><input id="frank" type="number" step="1" value="100"><small>How much of the dividend carries franking credits. Your fund's tax statement or website shows it.</small></div>
         <div class="field" id="row-corp" hidden><label for="corp">Company tax rate (%)</label><input id="corp" type="number" step="1" value="30"><small>30% for most large companies, 25% for smaller base rate companies.</small></div>
       </div>
-        <div class="field"><label for="yield">ETF dividend yield (%)</label><input id="yield" type="number" step="0.01" value="1.25"><small>Cash you receive. Use the cash yield, not a grossed-up yield that includes franking credits. DRP is assumed OFF: dividends are not reinvested. Pick a fund preset above or type your own.</small></div>
-        <div class="field"><label for="mtr">Tax rate on dividends (%)</label><input id="mtr" type="number" step="1" value="39"><small>Your rate while working. Default 39% is 37% plus 2% Medicare (taxable income $135,001 to $190,000).</small></div>
+        <div class="field"><label for="yield">ETF dividend yield (%)</label><input id="yield" type="number" step="0.01" value="1.25"><small>Cash you receive. Use the cash yield, not a grossed-up yield that includes franking credits. DRP is assumed OFF: dividends are not reinvested.</small></div>
+        <div class="field"><label for="mtr">Tax rate on dividends (%)</label><input id="mtr" type="number" step="1" value="39"><small>Your marginal tax rate in the years you hold the ETF and it pays dividends. Default 39% is 37% plus 2% Medicare (taxable income $135,001 to $190,000).</small></div>
       </details>
     </div>
     <div class="stack">
@@ -152,7 +153,7 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
       <details class="panel" open>
         <summary><h2>The working at break-even</h2></summary>
         <div class="tablewrap"><table>
-          <tr><td>Money taken from redraw/offset (amount plus the buy fee)</td><td id="t_cash"></td></tr>
+          <tr><td>Money taken from redraw/offset (the amount)</td><td id="t_cash"></td></tr>
           <tr><td>Sale price after the growth</td><td id="t_sale"></td></tr>
           <tr><td>Sale brokerage</td><td id="t_fee"></td></tr>
           <tr><td>Cost base after indexation</td><td id="t_base"></td></tr>
@@ -160,7 +161,7 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
           <tr><td>Capital gains tax</td><td id="t_cgt"></td></tr>
           <tr><td>Profit from the sale, after tax and fees</td><td id="t_cap"></td></tr>
           <tr><td>Dividends received</td><td id="t_dc"></td></tr>
-          <tr><td>Tax on dividends, after the offset or franking credit (negative = refund)</td><td id="t_dt"></td></tr>
+          <tr><td><span class="only-foreign">Tax paid on dividends, after the foreign income tax offset (FITO)</span><span class="only-franked">Tax paid on dividends, after the franking credit (a plus sign means a refund)</span></td><td id="t_dt"></td></tr>
           <tr><td>Dividends after tax, with loan interest saved by using them</td><td id="t_dn"></td></tr>
           <tr class="total"><td>ETF profit, which equals the redraw/offset saving</td><td id="t_tot"></td></tr>
         </table></div>
@@ -173,12 +174,13 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
       <details class="panel" open>
         <summary><h2>How it is calculated</h2></summary>
         <ol class="formulas">
-          <li>Redraw/offset saving: <code>(amount + buy fee) x ((1 + loan rate / 12)^(12 x years) - 1)</code></li>
+          <li>Redraw/offset saving: <code>amount x ((1 + loan rate / 12)^(12 x years) - 1)</code></li>
+          <li>With your numbers: <code id="exCalc"></code></li>
           <li class="only-foreign">Each year the dividend is <code>yield x value at the start of the year</code>. It is grossed up: <code>dividend / (1 - <span class="v-fito">15%</span>)</code>.</li>
           <li class="only-foreign">Dividend tax: <code>grossed-up dividend x dividend tax rate - grossed-up dividend x <span class="v-fito">15%</span></code>. The after-tax dividend goes against the loan and saves interest to the end.</li>
           <li class="only-franked">Each year the dividend is <code>yield x value at the start of the year</code>. Franking credit: <code>dividend x (company rate / (1 - company rate)) x franked portion</code>. Grossed-up dividend: <code>dividend + franking credit</code>.</li>
           <li class="only-franked">Dividend tax: <code>grossed-up dividend x dividend tax rate - franking credit</code>. If this is negative, the credit is refunded and you receive the difference. The after-tax dividend goes against the loan and saves interest to the end.</li>
-          <li>Cost base: <code>(amount + buy fee) x (1 + inflation)^years</code></li>
+          <li>Cost base: <code>amount x (1 + inflation)^years</code></li>
           <li>Taxable gain: <code>sale price - sell fee - cost base</code>, never below zero.</li>
           <li>Capital gains tax: <code>gain x the higher of your tax rate in the sale year and the <span class="v-floor">30%</span> minimum</code></li>
           <li>Break-even: the price growth where dividends after tax plus profit on the sale equal the redraw/offset saving. The page finds it by trial and error, so it works for any years.</li>
@@ -189,10 +191,10 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
         <ul class="limits">
           <li><b>ASX-listed, Australian-domiciled ETFs only.</b> The tax treatment (FITO or franking, the announced CGT changes from 1 July 2027, tax paid through the fund's annual statement) is for ETFs listed on the ASX and domiciled in Australia. It does not work for US-listed or other overseas-domiciled funds, which are taxed differently (for example, W-8BEN forms and US tax paid directly by you).</li>
           <li><b>Flat growth rate.</b> The page assumes the ETF grows by the same percentage every year. Real returns are not smooth and not guaranteed: they go up and down, and some years are negative. Two investments with the same average growth can end with different amounts, depending on when the good and bad years fall and when you sell.</li>
-          <li><b>One lump sum, two brokerage fees.</b> You buy once and sell once, not dollar cost averaging. The buy fee is added to the money taken from redraw/offset (amount plus fee), and the sell fee is deducted from the sale proceeds. Regular monthly or yearly buying would mean several purchase dates, each with its own cost base and fee, which this page does not track.</li>
+          <li><b>One lump sum, two brokerage fees.</b> You buy once and sell once, not dollar cost averaging. The buy fee comes out of the amount taken from redraw/offset, so only the rest is invested, and the sell fee is deducted from the sale proceeds. Regular monthly or yearly buying would mean several purchase dates, each with its own cost base and fee, which this page does not track.</li>
           <li><b>DRP is assumed OFF.</b> Dividends are not reinvested in the ETF. Each year's dividend, after tax, goes against the loan and saves interest until the sale. Reinvested dividends would each have their own cost base and purchase date, which this page does not track.</li>
           <li><b>Current CGT discount.</b> Under the announced capital gains tax changes from 1 July 2027, the part of a gain made before that date would keep the current 50% discount, which would lower the break-even a little for holds that straddle that date.</li>
-          <li><b>Loan rate.</b> It is assumed to stay constant for the whole hold. Loan interest is not tax deductible, because it is your home.</li>
+          <li><b>Loan rate and no interest deduction.</b> The loan rate is assumed to stay the same for the whole hold. The page treats the loan interest as not tax deductible and treats redraw and offset the same. If you redraw money to invest, the interest on that part may be deductible only in some cases (for example, if the loan is split), which this page does not model. Check with a tax agent.</li>
           <li><b>Franking.</b> A fund is treated as either foreign (FITO) or Australian (franked), not both. The 45 day holding rule for franking credits is not modelled, and the credit is assumed fully usable and refundable. Part of a real distribution can be interest or other income, which this page does not separate.</li>
           <li><b>General information only, not advice.</b></li>
         </ul>
@@ -204,8 +206,8 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 function model(p, g) {
   var N = p.years, m = p.loanRate / 12;
   var fv = function (n) { return Math.pow(1 + m, 12 * n); };
-  var cash = p.amount + p.fee;
-  var V = p.amount, divFV = 0, divNet = 0, divTax = 0, divCash = 0;
+  var cash = p.amount;
+  var V = p.amount - p.fee, divFV = 0, divNet = 0, divTax = 0, divCash = 0;
   for (var k = 1; k <= N; k++) {
     var div = V * p.yield;
     var gross, tax;
@@ -288,6 +290,9 @@ function render(){
   $('g').innerHTML=pc(g)+'<span>price growth a year</span>';
   $('tr').textContent=pc(g+p.yield);
   $('ls').textContent=f(r.loanSaving);
+  $('effRate').textContent=pc(Math.pow(1+p.loanRate/12,12)-1);
+  var fac=Math.pow(1+p.loanRate/12,12*p.years);
+  $('exCalc').textContent=f(r.cash)+' x ((1 + '+pc(p.loanRate)+' / 12)^(12 x '+p.years+') - 1) = '+f(r.cash)+' x ('+fac.toFixed(6)+' - 1) = '+f(r.loanSaving);
   $('t_cash').textContent=f(r.cash);
   $('t_sale').textContent=f(r.proceeds+p.fee);
   $('t_fee').textContent=f(-p.fee);
@@ -307,6 +312,11 @@ function render(){
   $('tv').textContent='At '+pc(tg)+' growth the ETF earns '+f(t.profit)+' after tax and fees, against '+f(r.loanSaving)+' saved in redraw/offset. The ETF is '+(d>=0?'ahead by ':'behind by ')+f(Math.abs(d))+'.';
   updateChips();
 }
+[['amount','amountRange'],['years','yearsRange']].forEach(function(ids){
+  var num=$(ids[0]),rng=$(ids[1]);
+  rng.addEventListener('input',function(){num.value=rng.value});
+  num.addEventListener('input',function(){rng.value=num.value});
+});
 Array.prototype.forEach.call(document.querySelectorAll('input,select'),function(el){el.addEventListener('input',render)});
 Array.prototype.forEach.call(document.querySelectorAll('button.chip'),function(b){b.addEventListener('click',function(){applyPreset(b.getAttribute('data-t'))})});
 $('reset').addEventListener('click',function(){
